@@ -114,9 +114,9 @@ Write-Log "Step 3: Editing SignalRGB registry entries..."
 
 if (Test-Path $sigRgbRegistryPath) {
     try {
-        Set-ItemProperty -Path $sigRgbRegistryPath -Name "StartupLaunch" -Value 0 -Type DWord
+        Set-ItemProperty -Path $sigRgbRegistryPath -Name "StartupLaunch" -Value 1 -Type DWord
         Set-ItemProperty -Path $sigRgbRegistryPath -Name "autoclose_conflicts" -Value 0 -Type DWord
-        Write-Log "Successfully set StartupLaunch and autoclose_conflicts to 0."
+        Write-Log "Successfully set StartupLaunch to 1 and autoclose_conflicts to 0."
     } catch {
         Write-Error ("An error occurred while editing SignalRGB registry: $($_)")
     }
@@ -128,18 +128,18 @@ if (Test-Path $sigRgbRegistryPath) {
 #region Step 4: Delete Autostart Registry Entries
 Write-Log "Step 4: Deleting autostart registry entries..."
 
-# Deleting SignalRgb autostart entry
-try {
-    $entryPath = Join-Path -Path $startupRegistryPath -ChildPath "SignalRgb"
-    if (Test-Path $entryPath) {
-        Remove-ItemProperty -Path $startupRegistryPath -Name "SignalRgb"
-        Write-Log "Successfully deleted autostart registry entry for SignalRgb."
-    } else {
-        Write-Log "Autostart registry entry for SignalRgb not found. Skipping."
-    }
-} catch {
-    Write-Error ("An error occurred while deleting autostart registry entry for SignalRgb: $($_)")
-}
+# # Deleting SignalRgb autostart entry
+# try {
+#     $entryPath = Join-Path -Path $startupRegistryPath -ChildPath "SignalRgb"
+#     if (Test-Path $entryPath) {
+#         Remove-ItemProperty -Path $startupRegistryPath -Name "SignalRgb"
+#         Write-Log "Successfully deleted autostart registry entry for SignalRgb."
+#     } else {
+#         Write-Log "Autostart registry entry for SignalRgb not found. Skipping."
+#     }
+# } catch {
+#     Write-Error ("An error occurred while deleting autostart registry entry for SignalRgb: $($_)")
+# }
 
 # Deleting NZXT.CAM autostart entry
 try {
@@ -165,26 +165,24 @@ try {
         Write-Log "Existing task '$taskName' found and removed."
     }
 
-    # Define paths
-    $signalRgbPath = "$env:LOCALAPPDATA\VortxEngine\SignalRgbLauncher.exe"
+    # Define path
     $nzxtCamPath = "$env:PROGRAMFILES\NZXT CAM\NZXT CAM.exe"
 
     # Trigger: When user logs on
     $trigger = New-ScheduledTaskTrigger -AtLogOn
 
-    # Actions: Start SignalRGB, wait 3 minutes, then start NZXT CAM
-    $action1 = New-ScheduledTaskAction -Execute $signalRgbPath
-    $action2 = New-ScheduledTaskAction -Execute "cmd.exe" -Argument "/c timeout /t 180 && ""$nzxtCamPath"""
+    # Action: Start NZXT CAM after a 3 minute delay, minimized
+    $action = New-ScheduledTaskAction -Execute "cmd.exe" -Argument "/c timeout /t 180 && start /min ""$nzxtCamPath"""
 
     # Settings
     $settings = New-ScheduledTaskSettingsSet -StartWhenAvailable -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -RunOnlyIfNetworkAvailable:$false
     $principal = New-ScheduledTaskPrincipal -UserId $env:USERNAME -LogonType Interactive -RunLevel Highest
 
     # Register the task
-    Register-ScheduledTask -TaskName $taskName -Action $action1, $action2 -Trigger $trigger -Settings $settings -Principal $principal -Description "Launches SignalRGB, waits 3 minutes, then launches NZXT CAM to prevent conflicts."
+    Register-ScheduledTask -TaskName $taskName -Action $action -Trigger $trigger -Settings $settings -Principal $principal -Description "Launches NZXT CAM after a 3 minute delay."
     Write-Log "Successfully created scheduled task '$taskName'."
 } catch {
-    Write-Error ("An error occurred while creating the scheduled task: $($_)")
+    Write-Error "An error occurred while creating the scheduled task: $($_.Exception.Message)"
 }
 #endregion
 
