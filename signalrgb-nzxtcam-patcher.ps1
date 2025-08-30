@@ -110,18 +110,30 @@ try {
 #endregion
 
 #region Step 3: Edit SignalRGB Registry
-Write-Log "Step 3: Editing SignalRGB registry entries..."
+Write-Log "Step 3: Editing SignalRGB registry entries.."
 
-if (Test-Path $sigRgbRegistryPath) {
-    try {
-        Set-ItemProperty -Path $sigRgbRegistryPath -Name "StartupLaunch" -Value 1 -Type DWord
+try {
+    # Path for main SignalRGB registry entries
+    if (Test-Path $sigRgbRegistryPath) {
+        Set-ItemProperty -Path $sigRgbRegistryPath -Name "StartupLaunch" -Value "true" -Type String
         Set-ItemProperty -Path $sigRgbRegistryPath -Name "autoclose_conflicts" -Value 0 -Type DWord
-        Write-Log "Successfully set StartupLaunch to 1 and autoclose_conflicts to 0."
-    } catch {
-        Write-Error ("An error occurred while editing SignalRGB registry: $($_)")
+        Write-Log "Successfully updated StartupLaunch and autoclose_conflicts registry entries."
+    } else {
+        Write-Log "SignalRGB main registry path not found. Skipping main registry edits."
     }
-} else {
-    Write-Log "SignalRGB registry path not found. Skipping."
+
+    # Path for window-related registry entries
+    $sigRgbWindowRegistryPath = "HKCU:\Software\WhirlwindFX\SignalRgb\window"
+    if (Test-Path $sigRgbWindowRegistryPath) {
+        Set-ItemProperty -Path $sigRgbWindowRegistryPath -Name "ExitOnClose" -Value "false" -Type String
+        Set-ItemProperty -Path $sigRgbWindowRegistryPath -Name "SilentStart" -Value "true" -Type String
+        Write-Log "Successfully updated ExitOnClose and SilentStart registry entries."
+    } else {
+        Write-Log "SignalRGB window registry path not found. Skipping window registry edits."
+    }
+
+} catch {
+    Write-Error "An error occurred while editing SignalRGB registry: $($_.Exception.Message)"
 }
 #endregion
 
