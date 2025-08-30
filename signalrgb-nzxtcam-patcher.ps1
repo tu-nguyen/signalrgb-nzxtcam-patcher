@@ -168,11 +168,11 @@ try {
     # Define path
     $nzxtCamPath = "$env:PROGRAMFILES\NZXT CAM\NZXT CAM.exe"
 
+    # Action: Launch NZXT CAM after a 3 minute delay, minimized
+    $action = New-ScheduledTaskAction -Execute "powershell.exe" -Argument "-NoProfile -WindowStyle Hidden -Command Start-Sleep -Seconds 180; Start-Process -FilePath '$nzxtCamPath' -WindowStyle Minimized"
+
     # Trigger: When user logs on
     $trigger = New-ScheduledTaskTrigger -AtLogOn
-
-    # Action: Start NZXT CAM after a 3 minute delay, minimized
-    $action = New-ScheduledTaskAction -Execute "cmd.exe" -Argument "/c timeout /t 180 && start /min ""$nzxtCamPath"""
 
     # Settings
     $settings = New-ScheduledTaskSettingsSet -StartWhenAvailable -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -RunOnlyIfNetworkAvailable:$false
