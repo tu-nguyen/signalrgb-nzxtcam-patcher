@@ -117,6 +117,7 @@ try {
     if (Test-Path $sigRgbRegistryPath) {
         Set-ItemProperty -Path $sigRgbRegistryPath -Name "StartupLaunch" -Value "true" -Type String
         Set-ItemProperty -Path $sigRgbRegistryPath -Name "autoclose_conflicts" -Value 0 -Type DWord
+        Set-ItemProperty -Path $sigRgbRegistryPath -Name "ignore_autoclose_prompt" -Value "true" -Type String
         Write-Log "Successfully updated StartupLaunch and autoclose_conflicts registry entries."
     } else {
         Write-Log "SignalRGB main registry path not found. Skipping main registry edits."

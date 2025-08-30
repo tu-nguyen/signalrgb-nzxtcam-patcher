@@ -71,6 +71,14 @@ Follow these steps to run the script.
 
 If you encounter a System.UnauthorizedAccessException error when running the script, ensure you have opened the PowerShell window with administrator privileges as described in step 2.
 
+If the lights on your AIO reverts when NZXT CAM opens, be sure to open SignalRGB > Click Devices > and ensure Conflicting Process Running is ignored
+
+![Device Ignore Screenshot](./signalrgb-nzxtcam-patcher-ignore.png)
+
+Also double check Settings > Applicamtions > Conflicts > And ensure everything is toggled off
+
+![Device Ignore 2 Screenshot](./signalrgb-nzxtcam-patcher-ignore2.png)
+
 ## Important Notes
 
     This script relies on the file and registry paths of the current software versions. If a future update to SignalRGB or NZXT CAM changes these paths, the script may need to be updated.
